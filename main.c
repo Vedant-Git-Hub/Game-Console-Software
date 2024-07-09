@@ -23,10 +23,10 @@ int main()
 		{
 //			for(char j = 0; j < 64; j++)
 			{
-				glcd_setPixel(0, 0);
-				glcd_setPixel(0, 63);
-				glcd_setPixel(127, 0);
-				glcd_setPixel(127, 63);
+				glcd_drawPixel(0, 0, ON);
+				glcd_drawPixel(0, 63, ON);
+				glcd_drawPixel(127, 0, ON);
+				glcd_drawPixel(127, 63, ON);
 				glcd_loadBuffer();
 //				_delay_ms(200);
 			}

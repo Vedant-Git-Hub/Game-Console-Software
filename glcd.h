@@ -30,7 +30,11 @@
 #define CMD_GFX			0x36
 #define CMD_GDRAM_ADDR		0x80
 
-
+typedef enum {
+	OFF = 0,
+	ON,
+	TOGGLE
+}PIXEL_STATE;
 
 
 void glcd_init(void);
@@ -41,7 +45,7 @@ void glcd_setTextMode(void);
 void glcd_loadBuffer(void);
 void glcd_fillScrn(void);
 void glcd_clearScrn(void);
-void glcd_setPixel(uint8_t, uint8_t);
+void glcd_drawPixel(uint8_t, uint8_t, PIXEL_STATE );
 
 void glcd_printStr(uint8_t , uint8_t, char *);
 void glcd_clearText(void);

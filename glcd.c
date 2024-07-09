@@ -135,14 +135,28 @@ void glcd_clearScrn()
 	memset(&displayBuffer, 0x00, sizeof(displayBuffer));
 }
 
-void glcd_setPixel(uint8_t x, uint8_t y)
+void glcd_drawPixel(uint8_t x, uint8_t y, PIXEL_STATE state)
 {
 #if 1
 	if(x >= SCRN_WIDTH || y >= SCRN_HEIGHT)
 	{
 		return;
 	}
-	displayBuffer[y][x/8] |= (0x80 >> (x & 0x07));
+
+	switch(state)
+	{
+		case ON:
+			displayBuffer[y][x/8] |= (0x80 >> (x & 0x07));
+			break;
+
+		case OFF:
+			displayBuffer[y][x/8] &= ~(0x80 >> (x & 0x07));
+			break;
+
+		case TOGGLE:
+			displayBuffer[y][x/8] ^= (0x80 >> (x & 0x07));
+			break;
+	}
 #endif
 }
 
