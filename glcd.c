@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <util/delay.h>
@@ -158,6 +159,36 @@ void glcd_drawPixel(uint8_t x, uint8_t y, PIXEL_STATE state)
 			break;
 	}
 #endif
+}
+
+void glcd_drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, PIXEL_STATE state)
+{
+  int dx = abs(x1-x0);
+  int dy = abs(y1-y0);
+  int sx = (x0 < x1) ? 1 : -1;
+  int sy = (y0 < y1) ? 1 : -1;
+  int err = dx - dy;
+
+  while(1) 
+  {
+  	glcd_drawPixel(x0, y0, state);
+
+        if(x0==x1 && y0==y1)
+	       	return;
+  	int err2 = err+err;
+
+  	if(err2>-dy) 
+	{
+	       	err-=dy;
+	       	x0+=sx; 
+	}
+
+  	if(err2< dx) 
+	{ 
+		err+=dx; 
+		y0+=sy; 
+	}
+  }
 }
 
 void glcd_printStr(uint8_t x, uint8_t y, char *str)

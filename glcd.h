@@ -46,6 +46,7 @@ void glcd_loadBuffer(void);
 void glcd_fillScrn(void);
 void glcd_clearScrn(void);
 void glcd_drawPixel(uint8_t, uint8_t, PIXEL_STATE );
+void glcd_drawLine(uint8_t, uint8_t, uint8_t, uint8_t, PIXEL_STATE);
 
 void glcd_printStr(uint8_t , uint8_t, char *);
 void glcd_clearText(void);
