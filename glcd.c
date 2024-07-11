@@ -173,22 +173,59 @@ void glcd_drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, PIXEL_STATE s
   {
   	glcd_drawPixel(x0, y0, state);
 
-        if(x0==x1 && y0==y1)
+        if(x0 == x1 && y0 == y1)
 	       	return;
-  	int err2 = err+err;
+  	int err2 = err + err;
 
-  	if(err2>-dy) 
+  	if(err2 > -dy) 
 	{
-	       	err-=dy;
-	       	x0+=sx; 
+	       	err -= dy;
+	       	x0 += sx; 
 	}
 
-  	if(err2< dx) 
+  	if(err2 < dx) 
 	{ 
-		err+=dx; 
-		y0+=sy; 
+		err += dx; 
+		y0 += sy; 
 	}
   }
+}
+
+void glcd_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, PIXEL_STATE state)
+{
+	int f = 1 - (int)radius;
+	int ddF_x = 1;
+	int ddF_y = -2 * (int)radius;
+	int x = 0;
+	int y = radius;
+ 
+	glcd_drawPixel(x0, y0 + radius, state);
+	glcd_drawPixel(x0, y0 - radius, state);
+	glcd_drawPixel(x0 + radius, y0, state);
+  	glcd_drawPixel(x0 - radius, y0, state);
+ 
+ 	 while(x < y) 
+ 	 {
+
+
+		 if(f >= 0) 
+	 	 {
+     			y--; 
+		 	ddF_y += 2; f += ddF_y;
+	  	 }
+
+    	         x++;
+	 	 ddF_x += 2; 
+	 	 f += ddF_x;    
+   		 glcd_drawPixel(x0 + x, y0 + y, state);
+   		 glcd_drawPixel(x0 - x, y0 + y, state);
+   		 glcd_drawPixel(x0 + x, y0 - y, state);
+   		 glcd_drawPixel(x0 - x, y0 - y, state);
+   		 glcd_drawPixel(x0 + y, y0 + x, state);
+   		 glcd_drawPixel(x0 - y, y0 + x, state);
+   		 glcd_drawPixel(x0 + y, y0 - x, state);
+   		 glcd_drawPixel(x0 - y, y0 - x, state);
+ 	 }
 }
 
 void glcd_printStr(uint8_t x, uint8_t y, char *str)

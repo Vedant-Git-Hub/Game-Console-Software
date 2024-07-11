@@ -14,7 +14,7 @@ int main()
 	glcd_loadBuffer();
 	_delay_ms(1000);
 	while(1)
-	{
+	{/*
 		glcd_drawLine(0, 0, 128/2, 64/2, ON);
 		glcd_loadBuffer();
 		_delay_ms(200);
@@ -31,5 +31,19 @@ int main()
 		glcd_loadBuffer();
 		_delay_ms(200);
 		glcd_clearScrn();
+		*/
+		glcd_printStr(0, 2, "VB");
+		for(int i = 0; i < 128; i+=4)
+		{
+			for(int j = 0; j < 64; j++)
+			{
+				if(i == j)
+				{
+					glcd_drawCircle(i, j, 31, ON);
+					glcd_loadBuffer();
+					glcd_clearScrn();
+				}
+			}
+		}
 	}
 }
