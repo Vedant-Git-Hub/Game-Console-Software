@@ -2,48 +2,32 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include "glcd.h"
-#include "spi.h"
+#include "7seg.h"
 
 
 int main()
 {
-
 	glcd_init();
 	glcd_clearText();
 	glcd_clearScrn();
 	glcd_loadBuffer();
+	seg7_init();
+	for(int i = 0; i < 1000; i ++)
+	{
+		seg7_printDigit(i);
+		_delay_ms(50);
+	}
+	glcd_clearText();
 	_delay_ms(1000);
 	while(1)
-	{/*
-		glcd_drawLine(0, 0, 128/2, 64/2, ON);
+	{
+//		glcd_printStr(0, 2, "VB");
+		glcd_drawRectangle(0, 0, 40, 20, TOGGLE);
+		glcd_fillRectangle(0, 30, 40, 20, TOGGLE);
+		glcd_drawCircle(128/2, 64/2, 10, TOGGLE);
+		glcd_fillCircle(110, 36, 10, TOGGLE);
 		glcd_loadBuffer();
-		_delay_ms(200);
-		glcd_clearScrn();
-		glcd_drawLine(127, 0, 128/2, 64/2, ON);
-		glcd_loadBuffer();
-		_delay_ms(200);
-		glcd_clearScrn();
-		glcd_drawLine(127, 63, 128/2, 64/2, ON);
-		glcd_loadBuffer();
-		_delay_ms(200);
-		glcd_clearScrn();
-		glcd_drawLine(0, 63, 128/2, 64/2, ON);
-		glcd_loadBuffer();
-		_delay_ms(200);
-		glcd_clearScrn();
-		*/
-		glcd_printStr(0, 2, "VB");
-		for(int i = 0; i < 128; i+=4)
-		{
-			for(int j = 0; j < 64; j++)
-			{
-				if(i == j)
-				{
-					glcd_drawCircle(i, j, 31, ON);
-					glcd_loadBuffer();
-					glcd_clearScrn();
-				}
-			}
-		}
+		_delay_ms(300);
+		glcd_clearText();
 	}
 }

@@ -191,6 +191,139 @@ void glcd_drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, PIXEL_STATE s
   }
 }
 
+void glcd_drawFastLineV(uint8_t x, uint8_t y0, uint8_t y1, PIXEL_STATE state)
+{
+
+	uint8_t mask = 0x80 >> (x&7);
+
+ 	if(y1<y0) 
+	{
+    		mask=y0; y0=y1; y1=mask; // swap
+ 	}
+
+ 	mask = 0x80 >> (x&7);
+
+  	switch(state)
+       	{
+   		case ON: 
+			for(int y=y0; y<=y1; y++) 
+				displayBuffer[y][x/8] |= mask;   
+			break;
+
+   		case OFF: 
+			for(int y=y0; y<=y1; y++) 
+				displayBuffer[y][x/8] &= ~mask;  
+			break;
+
+   		case TOGGLE: 
+			for(int y=y0; y<=y1; y++) 
+				displayBuffer[y][x/8] ^= mask;   
+			break;
+ 	}
+}
+
+void glcd_drawFastLineH(uint8_t x0, uint8_t x1, uint8_t y, PIXEL_STATE state)
+{
+	uint8_t xstab[8]={0xff,0x7f,0x3f,0x1f,0x0f,0x07,0x03,0x01};
+	uint8_t xetab[8]={0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe,0xff};
+	uint8_t pattern[4]={0xaa,0x55,0xaa,0x55};
+ 	int x8s, x8e;
+
+  	if(x1 >= x0) 
+	{
+    		x8s = x0 / 8;
+    		x8e = x1 / 8;
+  	} 
+	else 
+	{
+    		x8s = x1; 
+		x1 = x0; 
+		x0 = x8s; // swap
+    		x8s = x1 / 8;
+    		x8e = x0 / 8;
+  	}
+
+  	switch(state) 
+	{
+    		case ON:
+      			if(x8s == x8e) 
+				displayBuffer[y][x8s] |= (xstab[x0 & 7] & xetab[x1 & 7]);
+      			else 
+			{ 
+				displayBuffer[y][x8s] |= xstab[x0 & 7]; 
+				displayBuffer[y][x8e] |= xetab[x1 & 7]; 
+			}
+      			for(int x = x8s + 1; x < x8e; x++) 
+				displayBuffer[y][x] = 0xff;
+      			break;
+
+    		case OFF:
+      			if(x8s == x8e) 
+				displayBuffer[y][x8s] &= ~(xstab[x0 & 7] & xetab[x1 & 7]);
+      			else 
+			{ 
+				displayBuffer[y][x8s] &= ~xstab[x0 & 7]; 
+				displayBuffer[y][x8e] &= ~xetab[x1 & 7]; 
+			}
+
+      			for(int x = x8s + 1; x < x8e; x++) 
+				displayBuffer[y][x] = 0x00;
+     			 break;
+
+    		case TOGGLE:
+      			if(x8s == x8e) 
+				displayBuffer[y][x8s] ^= (xstab[x0 & 7] & xetab[x1 & 7]);
+      			else 
+			{ 
+				displayBuffer[y][x8s] ^= xstab[x0 & 7]; 
+				displayBuffer[y][x8e] ^= xetab[x1 & 7]; 
+			}
+
+      			for(int x = x8s + 1; x < x8e; x++) 
+				displayBuffer[y][x] ^= 0xff;
+      			break;
+ 	 }
+}
+
+void glcd_drawRectangle(uint8_t x, uint8_t y, uint8_t w, uint8_t h, PIXEL_STATE state)
+{
+	if(x >= SCRN_WIDTH || y >= SCRN_HEIGHT) 
+		return;
+
+  	uint8_t drawVright = 1;
+
+  	if(x+w > SCRN_WIDTH) 
+	{ 
+		w = SCRN_WIDTH - x; 
+		drawVright = 0; 
+	}
+
+  	if(y + h > SCRN_HEIGHT) 
+		h = SCRN_HEIGHT - y; 
+	else 
+		glcd_drawFastLineH(x, x + w - 1, y + h - 1, state);
+ 	 	glcd_drawFastLineH(x, x + w - 1, y, state);
+  		glcd_drawFastLineV(x, y + 1, y + h - 2, state);
+
+  	if(drawVright) 
+		glcd_drawFastLineV(x + w - 1, y + 1, y + h - 2, state);
+}
+
+void glcd_fillRectangle(uint8_t x, uint8_t y, uint8_t w, uint8_t h, PIXEL_STATE state)
+{
+	if(x >=SCRN_WIDTH || y >= SCRN_HEIGHT) 
+		return;
+
+  	if(x + w > SCRN_WIDTH) 
+		w = SCRN_WIDTH - x;
+
+  	if(y + h > SCRN_HEIGHT) 
+		h = SCRN_HEIGHT - y;
+
+  	for(int i = y; i < y + h; i++) 
+		glcd_drawFastLineH(x, x + w - 1, i, state);
+}
+
 void glcd_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, PIXEL_STATE state)
 {
 	int f = 1 - (int)radius;
@@ -228,6 +361,41 @@ void glcd_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, PIXEL_STATE state)
  	 }
 }
 
+void glcd_fillCircle(uint8_t x0, uint8_t y0, uint8_t r, PIXEL_STATE state)
+{
+#if 1
+	glcd_drawFastLineH(x0 - r, x0 - r + 2 * r + 1, y0, state);
+
+  	int16_t f = 1 - r;
+  	int16_t ddF_x = 1;
+  	int16_t ddF_y = -2 * r;
+  	int16_t x = 0;
+  	int16_t y = r;
+
+  	while(x < y) 
+	{
+    		if (f >= 0) 
+		{
+      			y--;
+      			ddF_y += 2;
+      			f += ddF_y;
+    		}
+
+    		x++;
+   		ddF_x += 2;
+    		f += ddF_x;
+
+    		glcd_drawFastLineH(x0 - x, x0 - x + 2 * x + 1, y0 + y, state);
+    		glcd_drawFastLineH(x0 - y, x0 - y + 2 * y + 1, y0 + x, state);
+    		glcd_drawFastLineH(x0 - x, x0 - x + 2 * x + 1, y0 - y, state);
+    		glcd_drawFastLineH(x0 - y, x0 - y + 2 * y + 1, y0 - x, state);
+ 	 }
+#elif 0
+	for(int i = r; i >= 0; i--)
+		glcd_drawCircle(x0, y0, i, state);
+#endif
+}
+
 void glcd_printStr(uint8_t x, uint8_t y, char *str)
 {
 	uint8_t pos;
@@ -261,5 +429,5 @@ void glcd_printStr(uint8_t x, uint8_t y, char *str)
 void glcd_clearText()
 {
 	glcd_sndCmd(CMD_CLEAR);
-	_delay_ms(2);
+	_delay_ms(10);
 }

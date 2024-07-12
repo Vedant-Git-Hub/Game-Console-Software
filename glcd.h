@@ -47,7 +47,12 @@ void glcd_fillScrn(void);
 void glcd_clearScrn(void);
 void glcd_drawPixel(uint8_t, uint8_t, PIXEL_STATE );
 void glcd_drawLine(uint8_t, uint8_t, uint8_t, uint8_t, PIXEL_STATE);
+void glcd_drawFastLineV(uint8_t, uint8_t, uint8_t, PIXEL_STATE);
+void glcd_drawFastLineH(uint8_t, uint8_t, uint8_t, PIXEL_STATE);
+void glcd_drawRectangle(uint8_t , uint8_t, uint8_t, uint8_t, PIXEL_STATE);
+void glcd_fillRectangle(uint8_t, uint8_t, uint8_t, uint8_t, PIXEL_STATE);
 void glcd_drawCircle(uint8_t, uint8_t, uint8_t, PIXEL_STATE);
+void glcd_fillCircle(uint8_t , uint8_t , uint8_t, PIXEL_STATE);
 
 void glcd_printStr(uint8_t , uint8_t, char *);
 void glcd_clearText(void);
