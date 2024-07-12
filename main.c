@@ -3,31 +3,46 @@
 #include <avr/io.h>
 #include "glcd.h"
 #include "7seg.h"
+#include "keypad.h"
+
+
+void keyCallBack(KEY_ID key, EDGE edge)
+{
+	static uint8_t count = 0;
+	switch(key)
+	{
+		case UP:
+			seg7_printDigit(++count);
+			break;
+
+		case DOWN:
+			seg7_printDigit(--count);
+			break;
+
+		case SELECT:
+			count = 0;
+			seg7_printDigit(count);
+			break;
+
+		case LEFT:
+			seg7_printDigit(--count);
+			break;
+
+		case RIGHT:
+			seg7_printDigit(count++);
+			break;
+	}
+}
+
 
 
 int main()
 {
-	glcd_init();
-	glcd_clearText();
-	glcd_clearScrn();
-	glcd_loadBuffer();
 	seg7_init();
-	for(int i = 0; i < 1000; i ++)
-	{
-		seg7_printDigit(i);
-		_delay_ms(50);
-	}
-	glcd_clearText();
-	_delay_ms(1000);
+	keypad_init(keyCallBack);
+	seg7_printDigit(999);
 	while(1)
 	{
-//		glcd_printStr(0, 2, "VB");
-		glcd_drawRectangle(0, 0, 40, 20, TOGGLE);
-		glcd_fillRectangle(0, 30, 40, 20, TOGGLE);
-		glcd_drawCircle(128/2, 64/2, 10, TOGGLE);
-		glcd_fillCircle(110, 36, 10, TOGGLE);
-		glcd_loadBuffer();
-		_delay_ms(300);
-		glcd_clearText();
+
 	}
 }
