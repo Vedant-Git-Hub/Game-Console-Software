@@ -1,30 +1,30 @@
 default:
 	echo "Use make gc to build and download the hex file to Atmega328p"
 
-speaker.o: speaker.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/speaker.o speaker.c
+speaker.o: drivers/speaker.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/speaker.o drivers/speaker.c
 
-pwm.o: pwm.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pwm.o pwm.c
+pwm.o: drivers/pwm.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pwm.o drivers/pwm.c
 
-keypad.o: keypad.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/keypad.o keypad.c
+keypad.o: drivers/keypad.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/keypad.o drivers/keypad.c
 
-7seg.o: 7seg.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/7seg.o 7seg.c
+7seg.o: drivers/7seg.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/7seg.o drivers/7seg.c
 
-srdriver.o: srdriver.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/srdriver.o srdriver.c
+srdriver.o: drivers/srdriver.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/srdriver.o drivers/srdriver.c
 
-glcd.o: glcd.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/glcd.o glcd.c
+glcd.o: drivers/glcd.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/glcd.o drivers/glcd.c
 
-spi.o: spi.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/spi.o spi.c
+spi.o: drivers/spi.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/spi.o drivers/spi.c
 #	avr-gcc -c -mmcu=atmega328p spi.c -o spi.o
 
-main.o: main.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o main.c
+main.o: Src/main.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o Src/main.c
 #	avr-gcc -c -mmcu=atmeg328p  main.c -o main.o
 
 gc: speaker.o pwm.o keypad.o 7seg.o srdriver.o glcd.o spi.o main.o 
