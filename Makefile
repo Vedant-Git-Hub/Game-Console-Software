@@ -1,6 +1,9 @@
 default:
 	echo "Use make gc to build and download the hex file to Atmega328p"
 
+pwm.o: pwm.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pwm.o pwm.c
+
 keypad.o: keypad.c
 	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/keypad.o keypad.c
 
@@ -21,8 +24,8 @@ main.o: main.c
 	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o main.c
 #	avr-gcc -c -mmcu=atmeg328p  main.c -o main.o
 
-gc: keypad.o 7seg.o srdriver.o glcd.o spi.o main.o 
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p build/main.o build/spi.o build/glcd.o build/srdriver.o build/7seg.o build/keypad.o -o build/gameConsole.elf
+gc: pwm.o keypad.o 7seg.o srdriver.o glcd.o spi.o main.o 
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p build/main.o build/spi.o build/glcd.o build/srdriver.o build/7seg.o build/keypad.o build/pwm.o -o build/gameConsole.elf
 	avr-size -C -x build/gameConsole.elf
 	avr-objcopy -O ihex -R .eeprom build/gameConsole.elf build/gameConsole.hex
 	sudo avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:build/gameConsole.hex
