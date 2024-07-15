@@ -48,6 +48,7 @@
 
 
 void speaker_init(void);
+void speaker_start(void);
 void speaker_playTone(uint16_t );
 void speaker_stop(void);
 

@@ -17,6 +17,11 @@ void pwm_init()
 	sei();
 }
 
+void pwm_start()
+{
+	DDRD |= (1 << PD5);
+}
+
 void pwm_setFrequency(uint16_t freq)
 {
 	uint32_t denominator = ((uint32_t)freq * (uint32_t)2 * (uint32_t)PRE_SCALAR);
@@ -24,9 +29,14 @@ void pwm_setFrequency(uint16_t freq)
 	ocr0bValue = (uint8_t) ((numerator/denominator) - (uint32_t)1);	
 }
 
+void pwm_stop()
+{
+	DDRD &= ~(1 << PD5);
+}
 
 ISR(TIMER0_COMPB_vect)
 {
 	TCNT0 = 0;
 	OCR0B = ocr0bValue;
 }
+
