@@ -55,5 +55,6 @@ void glcd_drawCircle(uint8_t, uint8_t, uint8_t, PIXEL_STATE);
 void glcd_fillCircle(uint8_t , uint8_t , uint8_t, PIXEL_STATE);
 
 void glcd_printStr(uint8_t , uint8_t, char *);
+void glcd_clearLine(uint8_t );
 void glcd_clearText(void);
 #endif

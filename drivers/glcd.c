@@ -426,6 +426,13 @@ void glcd_printStr(uint8_t x, uint8_t y, char *str)
 	}
 }
 
+void glcd_clearLine(uint8_t lineNo)
+{
+	char spaces[] = "                ";
+	glcd_setTextMode();
+	glcd_printStr(0, lineNo, spaces);
+}
+
 void glcd_clearText()
 {
 	glcd_sndCmd(CMD_CLEAR);

@@ -11,7 +11,8 @@
 #define RIGHT_KEY	PC1
 
 typedef enum{
-	UP = 0,
+	NO_KEY = 0,
+	UP,
 	DOWN,
 	SELECT,
 	LEFT,
