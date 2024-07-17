@@ -34,6 +34,12 @@ const char *const menuOptions[] PROGMEM = {
 	spare3Str,
 };
 
+const char const gameStr[] PROGMEM = "GAME";
+
+const char *const gameIntro[] PROGMEM = {
+	gameStr,
+};
+
 static void strCpyToRam(char *ram, const char *const flash)
 {
 	memset(ram, 0, 20);
@@ -76,6 +82,10 @@ void app_run()
 			case MENU:
 				menuScreen();
 				break;
+
+			case PONG:
+				pongGame();
+				break;
 		}
 	}
 }
@@ -84,6 +94,9 @@ void app_run()
 void keypadHandler(KEY_ID key, EDGE edge)
 {
 	keyId = key;
+	speaker_playTone(SA_M);
+	_delay_ms(80);
+	speaker_stop();
 	switch(key)
 	{
 		case UP:
@@ -226,4 +239,55 @@ void menuScreen()
 	glcd_clearScrn();
 	keyId = NO_KEY;
 	glcd_loadBuffer();
+}
+
+void pongGame()
+{
+	char ramBuffer[20];
+	strCpyToRam(ramBuffer, (const char *const)&menuOptions[2]);
+	glcd_printStr(PONG_X, PONG_Y, &ramBuffer[2]);
+	strCpyToRam(ramBuffer, (const char *const)&gameIntro[0]);
+	glcd_printStr(PONG_X, PONG_Y + 1, ramBuffer);
+	glcd_fillCircle(GAME_INTRO_CIRCLE_X, GAME_INTRO_CIRCLE_Y, GAME_INTRO_CIRCLE_R, ON);
+	glcd_loadBuffer();
+
+	while(keyId == NO_KEY);
+
+	keyId = NO_KEY;
+	glcd_clearLine(1);
+	glcd_clearLine(2);
+	glcd_clearScrn();
+
+	glcd_drawRectangle(PONG_RECT_X, PONG_RECT_Y, PONG_RECT_W, PONG_RECT_H, ON);
+	glcd_drawRectangle(PONG_RECT_X + 1, PONG_RECT_Y + 1, PONG_RECT_W - 2, PONG_RECT_H - 2, ON);
+	glcd_loadBuffer();
+
+	int16_t barX = ((SCRN_WIDTH/2) - (PONG_BAR_W/2)), ballX = (SCRN_WIDTH/2), ballY = (SCRN_HEIGHT/2);
+
+	while(appId == PONG)
+	{
+		if(keyId == LEFT)
+		{
+			keyId = NO_KEY;
+			glcd_fillRectangle(barX, PONG_BAR_Y, PONG_BAR_W, PONG_BAR_H, OFF);
+			barX -= 4;
+			if(barX < 2)
+				barX = 2;
+		}
+
+		else if(keyId == RIGHT)
+		{
+			keyId = NO_KEY;
+			glcd_fillRectangle(barX, PONG_BAR_Y, PONG_BAR_W, PONG_BAR_H, OFF);
+			barX += 4;
+			if((barX + PONG_BAR_W) > (PONG_RECT_W - 2))
+				barX = (PONG_RECT_W - 2) - (PONG_BAR_W);
+		}
+
+		ballY++;
+
+		glcd_fillRectangle(barX, PONG_BAR_Y, PONG_BAR_W, PONG_BAR_H, ON);
+		glcd_fillCircle(ballX, ballY, PONG_BALL_R, ON);
+		glcd_loadBuffer();
+	}
 }

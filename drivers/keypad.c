@@ -25,7 +25,7 @@ ISR(PCINT1_vect)
 {
 	PCMSK1 &= ~(1 << PCINT8) & ~(1 << PCINT9) & ~(1 << PCINT10) & ~(1 << PCINT11) & ~(1 << PCINT12);
 
-	_delay_ms(70);
+//	_delay_ms(70);
 
 	if(PINC & (1 << UP_KEY))
 		keyPressInterrupt(UP, RISING);
