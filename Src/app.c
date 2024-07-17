@@ -35,9 +35,11 @@ const char *const menuOptions[] PROGMEM = {
 };
 
 const char const gameStr[] PROGMEM = "GAME";
+const char const overStr[] PROGMEM = "OVER";
 
 const char *const gameIntro[] PROGMEM = {
 	gameStr,
+	overStr
 };
 
 static void strCpyToRam(char *ram, const char *const flash)
@@ -86,6 +88,10 @@ void app_run()
 			case PONG:
 				pongGame();
 				break;
+
+			case GAMEOVER:
+				gameOver();
+				break;
 		}
 	}
 }
@@ -94,9 +100,6 @@ void app_run()
 void keypadHandler(KEY_ID key, EDGE edge)
 {
 	keyId = key;
-	speaker_playTone(SA_M);
-	_delay_ms(80);
-	speaker_stop();
 	switch(key)
 	{
 		case UP:
@@ -122,12 +125,30 @@ void startupScreen()
 	char ramBuffer[20];
 	strCpyToRam(ramBuffer, (const char *const)&startupStr[0]);
 	glcd_printStr(GAMEBOX_X, GAMEBOX_Y, ramBuffer);
+	glcd_fillRectangle(GAMEBOX_RECT_X, GAMEBOX_RECT_Y, GAMEBOX_RECT_W, GAMEBOX_RECT_H, ON);
+	glcd_loadBuffer();
+	uint16_t counter = 0;
 	while(keyId == NO_KEY)
 	{
-		glcd_fillRectangle(GAMEBOX_RECT_X, GAMEBOX_RECT_Y, GAMEBOX_RECT_W, GAMEBOX_RECT_H, ON);
-		glcd_loadBuffer();
-		_delay_ms(200);
+		if(counter >= 100)
+			counter = 100;
+		seg7_printDigit(counter++);
+		
+		speaker_playTone(GA_H);
+		_delay_ms(100);
+		speaker_playTone(GA_K_H);
+		_delay_ms(50);
+		speaker_playTone(NI_M);
+		_delay_ms(50);
+		speaker_playTone(RE_H);
+		_delay_ms(50);
+		speaker_playTone(SA_H);
+		_delay_ms(50);
+		speaker_playTone(DHA_M);
+		_delay_ms(50);
 	}
+	speaker_stop();
+	seg7_printDigit(0);
 	strCpyToRam(ramBuffer, (const char *const)&startupStr[1]);
 	glcd_printStr(GAMEBOX_X, GAMEBOX_Y, ramBuffer);
 	glcd_clearScrn();
@@ -263,6 +284,9 @@ void pongGame()
 	glcd_loadBuffer();
 
 	int16_t barX = ((SCRN_WIDTH/2) - (PONG_BAR_W/2)), ballX = (SCRN_WIDTH/2), ballY = (SCRN_HEIGHT/2);
+	uint16_t score = 0;
+	int16_t ballVelX = 5;
+	int16_t ballVelY = -ballVelX/2;
 
 	while(appId == PONG)
 	{
@@ -284,10 +308,92 @@ void pongGame()
 				barX = (PONG_RECT_W - 2) - (PONG_BAR_W);
 		}
 
-		ballY++;
+		if(ballX - PONG_BALL_R < 2)
+		{
+			glcd_fillCircle(ballX, ballY, PONG_BALL_R, OFF);
+			ballVelX = -ballVelX;
+		}
 
+		else if((ballX + PONG_BALL_R) >= (PONG_RECT_W - 3))
+		{
+			glcd_fillCircle(ballX, ballY, PONG_BALL_R, OFF);
+			ballVelX = -ballVelX;
+		}
+
+		else if(ballY - PONG_BALL_R < 2)
+		{
+			glcd_fillCircle(ballX, ballY, PONG_BALL_R, OFF);
+			ballVelY = -ballVelY;
+		}
+
+		else if((ballY + PONG_BALL_R) > (PONG_RECT_H - 2)) 
+		{	
+			appId = GAMEOVER;
+			break;
+		}
+
+		else if(((ballY + PONG_BALL_R) == PONG_BAR_Y))
+		{
+			if(ballX >= barX && ballX <= (barX + PONG_BAR_W/2))
+			{
+				ballVelY = -ballVelY;
+				ballVelX = abs(ballVelX) * (-1);
+				score++;
+			}
+
+			else if(ballX >= (barX + PONG_BAR_W/2) && ballX <= (barX + PONG_BAR_W))
+			{
+				ballVelY = -ballVelY;
+				ballVelX = abs(ballVelX);
+				score++;
+			}
+		}
+
+		glcd_fillCircle(ballX, ballY, PONG_BALL_R, OFF);
+		ballX = ballX + ballVelX;
+		ballY = ballY + ballVelY;
 		glcd_fillRectangle(barX, PONG_BAR_Y, PONG_BAR_W, PONG_BAR_H, ON);
 		glcd_fillCircle(ballX, ballY, PONG_BALL_R, ON);
+		glcd_drawRectangle(PONG_RECT_X, PONG_RECT_Y, PONG_RECT_W, PONG_RECT_H, ON);
+		glcd_drawRectangle(PONG_RECT_X + 1, PONG_RECT_Y + 1, PONG_RECT_W - 2, PONG_RECT_H - 2, ON);
 		glcd_loadBuffer();
+		seg7_printDigit(score);
 	}
+
+	glcd_clearScrn();
+	glcd_loadBuffer();
+	keyId = NO_KEY;
+}
+
+void gameOver()
+{
+	char ramBuffer[20];
+
+	strCpyToRam(ramBuffer, &gameIntro[0]);
+	glcd_printStr(3, 1, ramBuffer);
+	strCpyToRam(ramBuffer, &gameIntro[1]);
+	glcd_printStr(3, 2, ramBuffer);
+	glcd_drawRectangle(40, 15, 50, 32, ON);
+	glcd_loadBuffer();
+
+	while(keyId == NO_KEY)
+	{
+		speaker_playTone(SA_M);
+		_delay_ms(50);
+		speaker_playTone(PA_M);
+		_delay_ms(50);
+		speaker_playTone(RE_M);
+		_delay_ms(50);
+		speaker_playTone(MA_M);
+		_delay_ms(50);
+	}
+	
+	speaker_stop();
+	glcd_clearLine(1);
+	glcd_clearLine(2);
+	glcd_clearScrn();
+	glcd_loadBuffer();
+	keyId = NO_KEY;
+	seg7_printDigit(0);
+	appId = MENU;
 }

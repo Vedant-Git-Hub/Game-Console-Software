@@ -46,6 +46,7 @@
 
 
 typedef enum{
+	GAMEOVER = 0xFF,
 	NONE = 0,
 	STARTUP,
 	MENU,
@@ -70,5 +71,6 @@ void keypadHandler(KEY_ID, EDGE);
 void startupScreen(void);
 void menuScreen(void);
 void pongGame(void);
+void gameOver();
 
 #endif
