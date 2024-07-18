@@ -1,46 +1,10 @@
 #include "app.h"
+#include "flashData.h"
 
 
 static APP_ID appId = NONE;
 static volatile KEY_ID keyId = NO_KEY;
 
-const char const gameboxStr[] PROGMEM = "GAME BOX";
-const char const spacesStr[] PROGMEM  = "        ";
-
-const char *const startupStr[] PROGMEM = {
-	gameboxStr,
-	spacesStr
-};
-
-const char const menuStr[] PROGMEM     = "MENU";
-const char const snakeStr[] PROGMEM    = "1.SNAKE";
-const char const pongStr[] PROGMEM     = "2.PONG";
-const char const tetrisStr[] PROGMEM   = "3.TETRIS";
-const char const pianoStr[] PROGMEM    = "4.PIANO";
-const char const settingsStr[] PROGMEM = "5.SETTINGS";
-const char const spare1Str[] PROGMEM   = "6.SPARE 1";
-const char const spare2Str[] PROGMEM   = "7.SPARE 2";
-const char const spare3Str[] PROGMEM   = "8.SPARE 3";
-
-const char *const menuOptions[] PROGMEM = {
-	menuStr,
-	snakeStr,
-	pongStr,
-	tetrisStr,
-	pianoStr,
-	settingsStr,
-	spare1Str,
-	spare2Str,
-	spare3Str,
-};
-
-const char const gameStr[] PROGMEM = "GAME";
-const char const overStr[] PROGMEM = "OVER";
-
-const char *const gameIntro[] PROGMEM = {
-	gameStr,
-	overStr
-};
 
 static void strCpyToRam(char *ram, const char *const flash)
 {
@@ -49,6 +13,13 @@ static void strCpyToRam(char *ram, const char *const flash)
 	strcpy_P(ram, strPtr);	
 }
 
+static inline void delay(unsigned int n)
+{
+	while(n--)
+	{
+		_delay_ms(1);
+	}
+}
 
 void initialize_drivers()
 {
@@ -134,18 +105,13 @@ void startupScreen()
 			counter = 100;
 		seg7_printDigit(counter++);
 		
-		speaker_playTone(GA_H);
-		_delay_ms(100);
-		speaker_playTone(GA_K_H);
-		_delay_ms(50);
-		speaker_playTone(NI_M);
-		_delay_ms(50);
-		speaker_playTone(RE_H);
-		_delay_ms(50);
-		speaker_playTone(SA_H);
-		_delay_ms(50);
-		speaker_playTone(DHA_M);
-		_delay_ms(50);
+		for(uint16_t i = 0; i < sizeof(introTune3) / sizeof(uint16_t); i++)
+		{
+			uint16_t note = pgm_read_word(&introTune3[i]);
+			speaker_playTone(note);
+			delay(pgm_read_word(&introTune3Delay[i]) * 5);
+			speaker_stop();
+		}
 	}
 	speaker_stop();
 	seg7_printDigit(0);
@@ -337,14 +303,14 @@ void pongGame()
 			if(ballX >= barX && ballX <= (barX + PONG_BAR_W/2))
 			{
 				ballVelY = -ballVelY;
-				ballVelX = abs(ballVelX) * (-1);
+				ballVelX = (int16_t)abs((int)ballVelX) * (-1);
 				score++;
 			}
 
 			else if(ballX >= (barX + PONG_BAR_W/2) && ballX <= (barX + PONG_BAR_W))
 			{
 				ballVelY = -ballVelY;
-				ballVelX = abs(ballVelX);
+				ballVelX = (int16_t)abs((int)ballVelX);
 				score++;
 			}
 		}
@@ -369,9 +335,9 @@ void gameOver()
 {
 	char ramBuffer[20];
 
-	strCpyToRam(ramBuffer, &gameIntro[0]);
+	strCpyToRam(ramBuffer, (const char *const)&gameIntro[0]);
 	glcd_printStr(3, 1, ramBuffer);
-	strCpyToRam(ramBuffer, &gameIntro[1]);
+	strCpyToRam(ramBuffer, (const char *const)&gameIntro[1]);
 	glcd_printStr(3, 2, ramBuffer);
 	glcd_drawRectangle(40, 15, 50, 32, ON);
 	glcd_loadBuffer();

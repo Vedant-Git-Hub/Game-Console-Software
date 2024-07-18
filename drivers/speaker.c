@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <util/delay.h>
 #include "../includes/pwm.h"
 #include "../includes/speaker.h"
 

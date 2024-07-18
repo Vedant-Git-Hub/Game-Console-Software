@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
