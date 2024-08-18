@@ -1,6 +1,8 @@
 #ifndef H_FLASH_DATA_H
 #define H_FLASH_DATA_H
 
+#include "../includes/speaker.h"
+
 const char const gameboxStr[] PROGMEM = "GAME BOX";
 const char const spacesStr[] PROGMEM  = "        ";
  

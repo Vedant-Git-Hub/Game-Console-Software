@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 
+#define DEBOUNCE_DELAY	10
 
 #define UP_KEY		PC0
 #define DOWN_KEY	PC2

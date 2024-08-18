@@ -1,7 +1,7 @@
 CC=avr-gcc
 FREQ=-DF_CPU=16000000UL
 MCU=-mmcu=atmega328p
-OBJECTS=build/spi.o build/glcd.o build/srdriver.o build/7seg.o build/keypad.o build/pwm.o build/speaker.o build/main.o build/app.o
+OBJECTS=build/spi.o build/glcd.o build/srdriver.o build/7seg.o build/keypad.o build/pwm.o build/speaker.o build/main.o build/common.o build/app.o build/startupscreen.o
 ELFS=build/gameConsole.elf
 HEX=build/gameConsole.hex
 
@@ -35,13 +35,19 @@ glcd.o: drivers/glcd.c
 spi.o: drivers/spi.c
 	$(CC) -Os $(FREQ) $(MCU) -c -o build/spi.o drivers/spi.c
 
+startupscreen.o: Src/Apps/startupscreen.c
+	$(CC) -Os $(FREQ) $(MCU) -c -o build/startupscreen.o Src/Apps/startupscreen.c
+
 app.o: Src/app.c
 	$(CC) -Os $(FREQ) $(MCU) -c -o build/app.o Src/app.c
+
+common.o: Src/common.c
+	$(CC) -Os $(FREQ) $(MCU) -c -o build/common.o Src/common.c
 
 main.o: Src/main.c
 	$(CC) -Os $(FREQ) $(MCU) -c -o build/main.o Src/main.c
 
-gc: speaker.o pwm.o keypad.o 7seg.o srdriver.o glcd.o spi.o app.o main.o 
+gc: speaker.o pwm.o keypad.o 7seg.o srdriver.o glcd.o spi.o startupscreen.o app.o common.o main.o 
 	$(CC) -Os $(FREQ) $(MCU) $(OBJECTS) -o $(ELFS)
 	avr-size -C -x $(ELFS)
 	avr-objcopy -O ihex -R .eeprom $(ELFS) $(HEX)
