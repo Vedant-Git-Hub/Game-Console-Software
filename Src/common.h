@@ -11,7 +11,7 @@
 #include <util/delay.h>
 
 
-void strCpyToRam(char *, const char *const);
+void strCpyToRam(char *, const char *);
 void delay(unsigned int);
 
 

@@ -4,7 +4,7 @@
 
 
 
-void strCpyToRam(char *ram, const char *const flash)
+void strCpyToRam(char *ram, const char *flash)
 {
         memset(ram, 0, 20);
 //        char *strPtr = (char *) pgm_read_word(flash);
