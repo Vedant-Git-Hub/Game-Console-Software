@@ -52,7 +52,6 @@ void glcd_setTextMode()
 
 void glcd_loadBuffer()
 {
-#if 1
 	uint8_t x, y;
 	glcd_setGfxMode();
 	for(x = 0; x < SCRN_PAGES; x += 2)
@@ -65,80 +64,20 @@ void glcd_loadBuffer()
 			glcd_sndData(displayBuffer[y][x+1]);
 		}
 	}
-#elif 0
-	uint8_t x, y;
-	for(x = 0; x < SCRN_PAGES; x += 2)
-	{
-		for(y = 0; y < SCRN_HEIGHT/2; y++)
-		{
-			glcd_sndCmd(CMD_GDRAM_ADDR | y);
-			glcd_sndCmd(CMD_GDRAM_ADDR | x / 2);
-			glcd_sndData(displayBuffer[y][x]);
-			glcd_sndData(displayBuffer[y][x+1]);
-		}
-	}
-
-	for(x = 0; x < SCRN_PAGES; x += 2)
-	{
-		for(y = SCRN_HEIGHT/2; y < SCRN_HEIGHT; y ++)
-		{
-			glcd_sndCmd(CMD_GDRAM_ADDR | (y - 32));
-			glcd_sndCmd(CMD_GDRAM_ADDR | (8 + (x / 2)));
-			glcd_sndData(displayBuffer[y][x]);
-			glcd_sndData(displayBuffer[y][x+1]);
-		}
-	}
-#endif
 }
 
 void glcd_fillScrn()
 { 
-#if 0
-        uint8_t x, y, yCoor = 0;
-        glcd_setGfxMode();
-        for(x = 0; x < SCRN_PAGES; x++)
-        {
-               for(y = 0, yCoor = 0; y < SCRN_HEIGHT; y++)
-               {
-                        glcd_sndCmd(CMD_GDRAM_ADDR | yCoor);
-                        glcd_sndCmd(CMD_GDRAM_ADDR | x);
-                        glcd_sndData(0xFF);
-                        glcd_sndData(0xFF);
-                        yCoor++;
-                        if(yCoor > 31)
-                                yCoor -= 32;
-                }               
-         }
-
-#endif
 	memset(&displayBuffer, 0xFF, sizeof(displayBuffer));
 }
 
 void glcd_clearScrn()
 {
-#if 0
-        uint8_t x, y, yCoor = 0;
-	glcd_setGfxMode();
-        for(x = 0; x < SCRN_PAGES; x++)
-        {
-                for(y = 0, yCoor = 0; y < SCRN_HEIGHT; y++)
-                {
-                        glcd_sndCmd(CMD_GDRAM_ADDR | yCoor);
-			glcd_sndCmd(CMD_GDRAM_ADDR | x);
-			glcd_sndData(0x00);
-			glcd_sndData(0x00);
-			yCoor++;
-			if(yCoor > 31)
-				yCoor -= 32;
-                }
-        }
-#endif
 	memset(&displayBuffer, 0x00, sizeof(displayBuffer));
 }
 
 void glcd_drawPixel(uint8_t x, uint8_t y, PIXEL_STATE state)
 {
-#if 1
 	if(x >= SCRN_WIDTH || y >= SCRN_HEIGHT)
 	{
 		return;
@@ -158,7 +97,6 @@ void glcd_drawPixel(uint8_t x, uint8_t y, PIXEL_STATE state)
 			displayBuffer[y][x/8] ^= (0x80 >> (x & 0x07));
 			break;
 	}
-#endif
 }
 
 void glcd_drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, PIXEL_STATE state)
@@ -363,7 +301,6 @@ void glcd_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, PIXEL_STATE state)
 
 void glcd_fillCircle(uint8_t x0, uint8_t y0, uint8_t r, PIXEL_STATE state)
 {
-#if 1
 	glcd_drawFastLineH(x0 - r, x0 - r + 2 * r + 1, y0, state);
 
   	int16_t f = 1 - r;
@@ -390,10 +327,6 @@ void glcd_fillCircle(uint8_t x0, uint8_t y0, uint8_t r, PIXEL_STATE state)
     		glcd_drawFastLineH(x0 - x, x0 - x + 2 * x + 1, y0 - y, state);
     		glcd_drawFastLineH(x0 - y, x0 - y + 2 * y + 1, y0 - x, state);
  	 }
-#elif 0
-	for(int i = r; i >= 0; i--)
-		glcd_drawCircle(x0, y0, i, state);
-#endif
 }
 
 void glcd_printStr(uint8_t x, uint8_t y, char *str)

@@ -13,6 +13,8 @@
 #include "../includes/keypad.h"
 #include "../includes/speaker.h"
 #include "Apps/includes/startupscreen.h"
+#include "Apps/includes/menumanager.h"
+
 
 
 typedef enum{
