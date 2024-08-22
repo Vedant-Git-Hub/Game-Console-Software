@@ -27,11 +27,11 @@ static void keyEvent(KEY_ID keyId, EDGE edge)
 {
 	switch(keyId)
 	{
-		case UP_KEY:
-		case DOWN_KEY:
-		case SELECT_KEY:
-		case LEFT_KEY:
-		case RIGHT_KEY:
+		case UP:
+		case DOWN:
+		case SELECT:
+		case LEFT:
+		case RIGHT:
 			keyWasPressed = true;
 			break;
 	}
