@@ -6,7 +6,7 @@
 #include "../includes/spi.h"
 #include "../includes/glcd.h"
 
-uint8_t displayBuffer[SCRN_HEIGHT][SCRN_PAGES];
+uint8_t displayBuffer[SCRN_HEIGHT * SCRN_PAGES];
 
 
 
@@ -60,8 +60,8 @@ void glcd_loadBuffer()
 		{
 			glcd_sndCmd(CMD_GDRAM_ADDR | ((y > 31) ? (y - 32) : (y)));
 			glcd_sndCmd(CMD_GDRAM_ADDR | ((y > 31) ? ((x / 2) + 8) : (x / 2)));
-			glcd_sndData(displayBuffer[y][x]);
-			glcd_sndData(displayBuffer[y][x+1]);
+			glcd_sndData(displayBuffer[y * SCRN_PAGES + x]);
+			glcd_sndData(displayBuffer[y * SCRN_PAGES + (x+1)]);
 		}
 	}
 }
@@ -86,15 +86,15 @@ void glcd_drawPixel(uint8_t x, uint8_t y, PIXEL_STATE state)
 	switch(state)
 	{
 		case ON:
-			displayBuffer[y][x/8] |= (0x80 >> (x & 0x07));
+			displayBuffer[y * SCRN_PAGES + x/8] |= (0x80 >> (x & 0x07));
 			break;
 
 		case OFF:
-			displayBuffer[y][x/8] &= ~(0x80 >> (x & 0x07));
+			displayBuffer[y * SCRN_PAGES + x/8] &= ~(0x80 >> (x & 0x07));
 			break;
 
 		case TOGGLE:
-			displayBuffer[y][x/8] ^= (0x80 >> (x & 0x07));
+			displayBuffer[y * SCRN_PAGES + x/8] ^= (0x80 >> (x & 0x07));
 			break;
 	}
 }
@@ -145,17 +145,17 @@ void glcd_drawFastLineV(uint8_t x, uint8_t y0, uint8_t y1, PIXEL_STATE state)
        	{
    		case ON: 
 			for(int y=y0; y<=y1; y++) 
-				displayBuffer[y][x/8] |= mask;   
+				displayBuffer[y * SCRN_PAGES + x/8] |= mask;   
 			break;
 
    		case OFF: 
 			for(int y=y0; y<=y1; y++) 
-				displayBuffer[y][x/8] &= ~mask;  
+				displayBuffer[y * SCRN_PAGES + x/8] &= ~mask;  
 			break;
 
    		case TOGGLE: 
 			for(int y=y0; y<=y1; y++) 
-				displayBuffer[y][x/8] ^= mask;   
+				displayBuffer[y * SCRN_PAGES + x/8] ^= mask;   
 			break;
  	}
 }
@@ -185,40 +185,40 @@ void glcd_drawFastLineH(uint8_t x0, uint8_t x1, uint8_t y, PIXEL_STATE state)
 	{
     		case ON:
       			if(x8s == x8e) 
-				displayBuffer[y][x8s] |= (xstab[x0 & 7] & xetab[x1 & 7]);
+				displayBuffer[y * SCRN_PAGES + x8s] |= (xstab[x0 & 7] & xetab[x1 & 7]);
       			else 
 			{ 
-				displayBuffer[y][x8s] |= xstab[x0 & 7]; 
-				displayBuffer[y][x8e] |= xetab[x1 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8s] |= xstab[x0 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8e] |= xetab[x1 & 7]; 
 			}
       			for(int x = x8s + 1; x < x8e; x++) 
-				displayBuffer[y][x] = 0xff;
+				displayBuffer[y * SCRN_PAGES + x] = 0xff;
       			break;
 
     		case OFF:
       			if(x8s == x8e) 
-				displayBuffer[y][x8s] &= ~(xstab[x0 & 7] & xetab[x1 & 7]);
+				displayBuffer[y * SCRN_PAGES + x8s] &= ~(xstab[x0 & 7] & xetab[x1 & 7]);
       			else 
 			{ 
-				displayBuffer[y][x8s] &= ~xstab[x0 & 7]; 
-				displayBuffer[y][x8e] &= ~xetab[x1 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8s] &= ~xstab[x0 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8e] &= ~xetab[x1 & 7]; 
 			}
 
       			for(int x = x8s + 1; x < x8e; x++) 
-				displayBuffer[y][x] = 0x00;
+				displayBuffer[y * SCRN_PAGES + x] = 0x00;
      			 break;
 
     		case TOGGLE:
       			if(x8s == x8e) 
-				displayBuffer[y][x8s] ^= (xstab[x0 & 7] & xetab[x1 & 7]);
+				displayBuffer[y * SCRN_PAGES + x8s] ^= (xstab[x0 & 7] & xetab[x1 & 7]);
       			else 
 			{ 
-				displayBuffer[y][x8s] ^= xstab[x0 & 7]; 
-				displayBuffer[y][x8e] ^= xetab[x1 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8s] ^= xstab[x0 & 7]; 
+				displayBuffer[y * SCRN_PAGES + x8e] ^= xetab[x1 & 7]; 
 			}
 
       			for(int x = x8s + 1; x < x8e; x++) 
-				displayBuffer[y][x] ^= 0xff;
+				displayBuffer[y * SCRN_PAGES + x] ^= 0xff;
       			break;
  	 }
 }
